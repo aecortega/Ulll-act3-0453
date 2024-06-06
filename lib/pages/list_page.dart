@@ -19,43 +19,41 @@ class _PersonListState extends State<PersonList> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return ListView.builder(
-                  itemCount: snapshot.data?.length,
+                  itemCount: snapshot.data?.length ?? 0,
                   itemBuilder: ((context, index) {
+                    final personData = snapshot.data?[index];
                     return Dismissible(
                       onDismissed: (direction) async {
-                        await deletePeople(snapshot.data?[index]['uid']);
+                        await deletePeople(personData?['uid']);
                         snapshot.data?.removeAt(index);
                       },
                       confirmDismiss: (direction) async {
+                        if (personData == null) return false;
                         bool result = false;
                         result = await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text(
-                                    "¿Está seguro de querer eliminar a ${snapshot.data?[index]['name']}?"),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        return Navigator.pop(
-                                          context,
-                                          false,
-                                        );
-                                      },
-                                      child: const Text("Cancelar",
-                                          style: TextStyle(color: Colors.red))),
-                                  TextButton(
-                                      onPressed: () {
-                                        return Navigator.pop(
-                                          context,
-                                          true,
-                                        );
-                                      },
-                                      child: const Text("Si, estoy seguro"))
-                                ],
-                              );
-                            });
-
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text(
+                                  "¿Está seguro de querer eliminar a ${personData['name']}?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, false);
+                                  },
+                                  child: const Text("Cancelar",
+                                      style: TextStyle(color: Colors.red)),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, true);
+                                  },
+                                  child: const Text("Sí, estoy seguro"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                         return result;
                       },
                       background: Container(
@@ -65,7 +63,8 @@ class _PersonListState extends State<PersonList> {
                       direction: DismissDirection.endToStart,
                       key: Key(snapshot.data?[index]['uid']),
                       child: ListTile(
-                        title: Text(snapshot.data?[index]['name']),
+                        title: Text(snapshot.data?[index]['name'] ??
+                            'Nombre Desconocido'),
                         onTap: () async {
                           await Navigator.pushNamed(context, '/edit',
                               arguments: {

@@ -42,6 +42,7 @@ dependencies:
 
   # Select a image from the phone
   image_picker: ^0.8.6
+  firebase_auth: ^4.17.8
 
 dev_dependencies:
   flutter_test:
